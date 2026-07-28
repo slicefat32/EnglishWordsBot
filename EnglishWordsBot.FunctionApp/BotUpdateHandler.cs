@@ -1,10 +1,9 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -40,7 +39,7 @@ public class BotUpdateHandler
         try
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var update = JsonConvert.DeserializeObject<Update>(requestBody);
+            var update = JsonSerializer.Deserialize<Update>(requestBody);
 
             if (update == null)
             {
