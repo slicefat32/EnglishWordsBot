@@ -36,7 +36,7 @@ public class BotUpdateHandler
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
     {
-        _logger.LogInformation("BotUpdate invoked");
+        _logger.LogInformation("TELEGRAMBOT UPDATE");
         try
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -59,18 +59,22 @@ public class BotUpdateHandler
 
     private async Task HandleUpdate(Update update)
     {
+        _logger.LogInformation("UpdateType: {Type}", update.Type);
         if (update.Type == UpdateType.Message)
         {
+            _logger.LogInformation("Text: {Text}", update.Message?.Text);
             await HandleMessage(update.Message!);
         }
         else if (update.Type == UpdateType.CallbackQuery)
         {
+            _logger.LogInformation("Callback: {Data}", update.CallbackQuery?.Data);
             await HandleCallbackQuery(update.CallbackQuery!);
         }
     }
 
     private async Task HandleMessage(Message message)
     {
+        _logger.LogInformation("HandleMessage chatId={ChatId}", message.Chat.Id);
         var chatId = message.Chat.Id;
         var text = (message.Text ?? "").Trim();
 
