@@ -36,6 +36,7 @@ public class BotUpdateHandler
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
     {
+        _logger.LogInformation("BotUpdate invoked");
         try
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();

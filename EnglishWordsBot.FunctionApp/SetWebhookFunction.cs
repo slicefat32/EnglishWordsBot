@@ -124,4 +124,19 @@ public class SetWebhookFunction
             return new ObjectResult(new { error = ex.Message }) { StatusCode = 500 };
         }
     }
+
+
+    [Function("GetBotInfo")]
+    public async Task<IActionResult> GetBotInfo(
+        [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req)
+    {
+        var me = await _botClient.GetMe();
+
+        return new OkObjectResult(new
+        {
+            me.Id,
+            me.Username,
+            me.FirstName
+        });
+    }
 }
