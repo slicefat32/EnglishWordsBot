@@ -1,15 +1,15 @@
-using System.Collections.Concurrent;
-using System.Text.Json;
+using EnglishWordsBot.DAL.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using EnglishWordsBot.DAL.Services;
 
 namespace EnglishWordsBot.FunctionApp;
 
@@ -52,8 +52,14 @@ public class BotUpdateHandler
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation("BODY: {Body}", requestBody);
 
-            // Використовуємо JsonOptions з налаштуваннями для Telegram.Bot
-            var update = JsonSerializer.Deserialize<Update>(requestBody, JsonOptions);
+            var node = JsonNode.Parse(requestBody)!;
+
+            if (node["message"]?["entities"] != null)
+            {
+                node["message"]!["entities"] = null;
+            }
+
+            var update = JsonSerializer.Deserialize<Update>(node.ToJsonString());
 
             if (update == null)
             {
