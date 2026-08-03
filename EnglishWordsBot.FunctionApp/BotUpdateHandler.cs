@@ -40,8 +40,9 @@ public class BotUpdateHandler
         try
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            _logger.LogInformation("BODY: {Body}", requestBody);
             var update = JsonSerializer.Deserialize<Update>(requestBody);
-
+            
             if (update == null)
             {
                 return new BadRequestResult();
