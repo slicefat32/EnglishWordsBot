@@ -41,8 +41,13 @@ public class BotUpdateHandler
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation("BODY: {Body}", requestBody);
-            var update = JsonSerializer.Deserialize<Update>(requestBody);
-            
+            var update = JsonSerializer.Deserialize<Update>(
+                requestBody,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
             if (update == null)
             {
                 return new BadRequestResult();
