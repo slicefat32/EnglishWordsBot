@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -19,6 +20,15 @@ public class BotUpdateHandler
     private readonly CalendarWordsService _calendarWordsService;
     private readonly IServiceProvider _serviceProvider;
     private static readonly ConcurrentDictionary<long, ChatState> States = new();
+
+    // JsonSerializerOptions для Telegram.Bot
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+    };
 
     public BotUpdateHandler(
         ILogger<BotUpdateHandler> logger,
@@ -41,17 +51,17 @@ public class BotUpdateHandler
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation("BODY: {Body}", requestBody);
-            var update = JsonSerializer.Deserialize<Update>(
-                requestBody,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+
+            // Використовуємо JsonOptions з налаштуваннями для Telegram.Bot
+            var update = JsonSerializer.Deserialize<Update>(requestBody, JsonOptions);
 
             if (update == null)
             {
+                _logger.LogWarning("Update is null after deserialization");
                 return new BadRequestResult();
             }
+
+            _logger.LogInformation("Update Type: {Type}, UpdateId: {Id}", update.Type, update.Id);
 
             await HandleUpdate(update);
             return new OkResult();
