@@ -52,13 +52,6 @@ public class BotUpdateHandler
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation("BODY: {Body}", requestBody);
 
-            //var node = JsonNode.Parse(requestBody)!;
-
-            //if (node["message"]?["entities"] != null)
-            //{
-            //    node["message"]!["entities"] = null;
-            //}
-
             var update = JsonSerializer.Deserialize<Update>(requestBody, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
